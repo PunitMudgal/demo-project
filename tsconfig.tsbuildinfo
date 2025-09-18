@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/controllers/auth.ts","./src/lib/connectdb.ts","./src/models/user.ts","./src/router/auth.ts"],"version":"5.9.2"}
+{"root":["./src/index.ts","./src/controllers/auth.ts","./src/lib/connectdb.ts","./src/lib/generatetoken.ts","./src/middleware/auth.ts","./src/models/user.ts","./src/router/auth.ts","./src/schema/userschema.ts"],"version":"5.9.2"}

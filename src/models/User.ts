@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import type { required } from "zod/mini";
 
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    requried: true,
+    required: true,
     min: 3,
     max: 40,
   },
@@ -14,33 +15,35 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    requried: true,
+    required: true,
     min: 5,
     max: 60,
   },
-  passsword: {
+  password: {
     type: String,
-    requried: true,
+    required: true,
     min: 3,
     max: 60,
   },
+  profilePhoto: {
+    type: String,
+    default: "",
+  },
   about: {
     type: String,
-    requried: true,
+    required: true,
     min: 10,
     max: 500,
   },
   address: {
     streetName: { type: String, max: 100 },
-    pincode: { type: String, required: true },
-    state: { type: String, required: true },
-    country: { type: String, required: true },
+    pincode: { type: Number },
+    state: { type: String },
+    country: { type: String },
   },
   isAdmin: {
     type: Boolean,
     default: false,
-    min: 10,
-    max: 500,
   },
   gender: {
     type: String,
@@ -51,9 +54,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  educationQualificaiton: {
+  educationQualification: {
     type: String,
-    required: true,
-    default: "N/A",
   },
 });
+
+const User = mongoose.model("User", userSchema);
+export default User;

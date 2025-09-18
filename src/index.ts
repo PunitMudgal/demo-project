@@ -1,16 +1,25 @@
-import express from "express";
+import express, { response, type Request, type Response } from "express";
 import dotenv from "dotenv";
 import connectToDB from "./lib/ConnectDB.js";
 import authRouter from "./router/auth.js";
+import userRouter from "./router/user.js";
+import adminRouter from "./router/admin.js";
+import authMiddleware from "./middleware/auth.js";
+import adminMiddleware from "./middleware/admin.js";
 dotenv.config();
 
 const app = express();
 
 // middlewares
 app.use(express.json());
+app.get("/", authMiddleware, (req: Request, res: Response) => {
+  res.status(200).send("All okay and working fine!");
+});
 
 // routes
 app.use("/api/auth", authRouter);
+app.use("/api/user", authMiddleware, userRouter);
+app.use("api/admin", adminMiddleware, adminRouter);
 // app.use("/api/user");
 // app.use("/api/");
 
