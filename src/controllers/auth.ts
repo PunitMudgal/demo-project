@@ -37,7 +37,7 @@ const registerUser = async (req: Request, res: Response) => {
     });
 
     if (newUser) {
-      const token = generateToken(newUser._id);
+      const token = generateToken(newUser._id, newUser.isAdmin);
 
       res.status(201).json({ message: "user created!", token, newUser });
     }
@@ -60,7 +60,7 @@ const loginUser = async (req: Request, res: Response) => {
 
     // const userWithoutPassword = { ...user.toObject(), password: undefined };
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.isAdmin);
     res.status(200).json({ message: "Signin", token, user });
   } catch (error) {
     res.status(500).json({ message: "Internal server Error: ", error });

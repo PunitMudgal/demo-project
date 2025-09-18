@@ -19,7 +19,11 @@ const adminMiddleware = async (
       return res.status(401).json({ message: "Authenticatoin failed!" });
     console.log("decoded in middleware: ", decode);
 
-    next();
+    if (decode.isAdmin) next();
+    else
+      res
+        .status(401)
+        .json({ message: "You are not eligible to access this information" });
   } catch (error) {}
 };
 
