@@ -1,5 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+
+interface AdminPayload extends JwtPayload {
+  userId: string;
+  isAdmin: boolean;
+}
 
 const adminMiddleware = async (
   req: Request,
@@ -14,17 +19,16 @@ const adminMiddleware = async (
     const token = authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Token not found!" });
 
-    const decode = jwt.verify(token, process.env.JWT_SECRET!);
-    if (!decode)
-      return res.status(401).json({ message: "Authenticatoin failed!" });
-    console.log("decoded in middleware: ", decode);
-
-    if (decode.isAdmin) next();
-    else
-      res
+    const decode = jwt.verify(token, process.env.JWT_SECRET!) as AdminPayload;
+    if (decode.isAdmin) {
+      next();
+    } else
+      return res
         .status(401)
         .json({ message: "You are not eligible to access this information" });
-  } catch (error) {}
+  } catch (error) {
+    res.status(401).json({ message: "Admin authntication failed: ", error });
+  }
 };
 
 export default adminMiddleware;

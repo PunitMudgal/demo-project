@@ -5,21 +5,25 @@ import authRouter from "./router/auth.js";
 import userRouter from "./router/user.js";
 import adminRouter from "./router/admin.js";
 import authMiddleware from "./middleware/auth.js";
-import adminMiddleware from "./middleware/admin.js";
+// import adminMiddleware from "./middleware/admin.js";
 dotenv.config();
 
 const app = express();
 
 // middlewares
 app.use(express.json());
+
+// for testing purpose
 app.get("/", authMiddleware, (req: Request, res: Response) => {
-  res.status(200).send("All okay and working fine!");
+  res
+    .status(200)
+    .json({ message: "All okay", userId: req.userId, isAdmin: req.isAdmin });
 });
 
 // routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", authMiddleware, userRouter);
-app.use("api/admin", adminMiddleware, adminRouter);
+app.use("/api/admin", authMiddleware, adminRouter);
 // app.use("/api/user");
 // app.use("/api/");
 
