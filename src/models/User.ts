@@ -3,13 +3,13 @@ import type { required } from "zod/mini";
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
+    first_name: {
       type: String,
       required: true,
       min: 3,
       max: 20,
     },
-    lastName: {
+    last_name: {
       type: String,
       min: 3,
       max: 20,
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
       min: 3,
       max: 60,
     },
-    profilePhoto: {
+    profile_photo: {
       type: String,
       default: "",
     },
@@ -37,12 +37,12 @@ const userSchema = new mongoose.Schema(
       max: 500,
     },
     address: {
-      streetName: { type: String, max: 100 },
+      street_name: { type: String, max: 100 },
       pincode: { type: Number },
       state: { type: String },
       country: { type: String },
     },
-    isAdmin: {
+    is_admin: {
       type: Boolean,
       default: false,
     },
@@ -51,11 +51,11 @@ const userSchema = new mongoose.Schema(
       enum: ["male", "female"],
       required: true,
     },
-    dateOfBirth: {
+    date_of_birth: {
       type: Date,
       required: true,
     },
-    educationQualification: {
+    education_qualification: {
       type: String,
     },
   },

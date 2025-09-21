@@ -3,7 +3,7 @@ import { loginSchema, registerSchema } from "../schema/userSchema.js";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import generateToken from "../lib/generateToken.js";
-import { SuccessMessages, ErrorMessages } from "../common/requestMessages.js";
+import { SuccessMessages, ErrorMessages } from "../common/messages.js";
 
 const registerUser = async (req: Request, res: Response) => {
   const parsedData = registerSchema.parse(req.body);
@@ -28,13 +28,15 @@ const registerUser = async (req: Request, res: Response) => {
     });
 
     if (newUser) {
-      const token = generateToken(newUser._id, newUser.isAdmin);
+      const token = generateToken(newUser._id, newUser.is_admin);
 
       res.status(201).json({
         status: "success",
         message: SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
-        token,
-        data: newUser,
+        data: {
+          token,
+          user: newUser,
+        },
       });
     }
   } catch (error) {
@@ -45,6 +47,7 @@ const registerUser = async (req: Request, res: Response) => {
     });
   }
 };
+
 // login user
 const loginUser = async (req: Request, res: Response) => {
   try {
@@ -68,7 +71,7 @@ const loginUser = async (req: Request, res: Response) => {
 
     // const userWithoutPassword = { ...user.toObject(), password: undefined };
 
-    const token = generateToken(user._id, user.isAdmin);
+    const token = generateToken(user._id, user.is_admin);
     res.status(200).json({
       status: "success",
       message: SuccessMessages.USER_PROFILE_RETRIEVED,

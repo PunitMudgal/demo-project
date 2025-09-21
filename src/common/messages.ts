@@ -1,5 +1,5 @@
 // responses.js
-module.exports = {
+export const extraMessages = {
   USER_NOT_FOUND: "User not found",
   INVALID_CREDENTIALS: "Invalid email or password",
   SUCCESS_FETCH: "Data fetched successfully",
