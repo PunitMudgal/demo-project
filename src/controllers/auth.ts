@@ -1,9 +1,17 @@
 import type { Request, Response } from "express";
-import { loginSchema, registerSchema } from "../schema/userSchema.js";
+import {
+  loginSchema,
+  registerSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
+} from "../schema/userSchema.js";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import generateToken from "../lib/generateToken.js";
 import { SuccessMessages, ErrorMessages } from "../common/messages.js";
+import Token from "../models/Token.js";
+import sendEmail from "../lib/sendEmail.js";
 
 const registerUser = async (req: Request, res: Response) => {
   const parsedData = registerSchema.parse(req.body);
@@ -13,12 +21,12 @@ const registerUser = async (req: Request, res: Response) => {
     // check if the user already exists
     const isAvailable = await User.findOne({ email });
     if (isAvailable)
-      return res.status(500).json({
+      return res.status(409).json({
         status: "error",
         message: ErrorMessages.USER_ALREADY_EXISTS,
       });
 
-    const salt = await bcrypt.genSalt(6);
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     //create the user
@@ -30,18 +38,21 @@ const registerUser = async (req: Request, res: Response) => {
     if (newUser) {
       const token = generateToken(newUser._id, newUser.is_admin);
 
+      const userResponse = { ...newUser.toObject(), password: undefined };
+
       res.status(201).json({
         status: "success",
         message: SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
         data: {
           token,
-          user: newUser,
+          user: userResponse,
         },
       });
     }
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).json({
-      Status: "error",
+      status: "error",
       message: ErrorMessages.INTERNAL_SERVER_ERROR,
       error,
     });
@@ -69,16 +80,66 @@ const loginUser = async (req: Request, res: Response) => {
         message: ErrorMessages.USER_NOT_FOUND,
       });
 
-    // const userWithoutPassword = { ...user.toObject(), password: undefined };
-
     const token = generateToken(user._id, user.is_admin);
+
+    const userWithoutPassword = { ...user.toObject(), password: undefined };
+
     res.status(200).json({
       status: "success",
       message: SuccessMessages.USER_PROFILE_RETRIEVED,
       data: {
         token,
-        user,
+        user: userWithoutPassword,
       },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({
+      status: "error",
+      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      error,
+    });
+  }
+};
+
+// reset password
+const requestPasswordReset = async (req: Request, res: Response) => {
+  try {
+    const { email } = requestPasswordResetSchema.parse(req.body);
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: ErrorMessages.USER_NOT_FOUND,
+      });
+    }
+    await Token.deleteOne({ userId: user._id });
+
+    // Create new token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    await new Token({
+      userId: user._id,
+      token: resetToken,
+    }).save();
+
+    // In a real app, you would email this link
+    const resetLink = `http://localhost:${process.env.PORT}/api/auth/reset-password/${resetToken}`;
+    console.log("Password Reset Link:", resetLink);
+
+    // Email content
+    const subject = "Password Reset Request";
+    const html = `<p>Hi ${user.first_name || "User"},</p>
+                  <p>Your reset password link is here, Please click the link below to set a new password:</p>
+                  <a href="${resetLink}">Reset Password</a>
+               `;
+
+    // Send the email
+    await sendEmail(user.email, subject, html);
+
+    res.status(200).json({
+      status: "success",
+      message: SuccessMessages.PASSWORD_RESET_LINK_SENT,
     });
   } catch (error) {
     res.status(500).json({
@@ -89,32 +150,41 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-// // /api/reset-password
-// const resetPassword = async (req: Request, res: Response) => {
-//   try {;
-//     const {email} = req.body;
-//     const user  = await User.findOne({email});
+// New controller for resetting the password
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { password } = resetPasswordSchema.parse(req.body);
+    const { token } = req.params;
 
-//     if(!user) return res.status(404).json({message: "User not found!"});
+    const resetToken = await Token.findOne({ token });
+    if (!resetToken) {
+      return res.status(400).json({
+        status: "error",
+        message: ErrorMessages.INVALID_CREDENTIALS,
+      });
+    }
 
-//     let token = await Token.findOne({userId: user._id});
-//     if(!token) {
-//       token = await new Token({
-//         userId: user._id,
-//         token: crypto.randomBytes(32).toString("hex"),
-//       }).save();
-//       }
-//       const link = `${prooce}`
-//   } catch (error) {}
-// };
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-// const logoutUser = async (req: Request, res: Response) => {
-//   try {
-//     const authHeader = req.headers.authorization;
-//     const token = authHeader?.split(" ")[1];
+    await User.updateOne(
+      { _id: resetToken.userId },
+      { $set: { password: hashedPassword } }
+    );
 
-//   } catch (error) {
+    await Token.deleteOne({ _id: resetToken._id });
 
-//   }
-// }
-export { registerUser, loginUser };
+    res.status(200).json({
+      status: "success",
+      message: SuccessMessages.PASSWORD_RESET,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+      error,
+    });
+  }
+};
+
+export { registerUser, loginUser, requestPasswordReset, resetPassword };

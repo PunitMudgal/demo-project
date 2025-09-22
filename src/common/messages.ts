@@ -1,7 +1,6 @@
 // responses.js
 export const extraMessages = {
   USER_NOT_FOUND: "User not found",
-  INVALID_CREDENTIALS: "Invalid email or password",
   SUCCESS_FETCH: "Data fetched successfully",
   ERROR_OCCURRED: "An unexpected error occurred",
 };
@@ -13,6 +12,8 @@ export enum Status {
 
 export enum SuccessMessages {
   USER_REGISTERED_SUCCESSFULLY = "User registered successfully",
+  PASSWORD_RESET_LINK_SENT = "Password reset link has been sent to the email",
+  PASSWORD_RESET = "Password has been successfully reset",
   USER_CREATED = "User created successfully",
   MODULE_CREATED = "Module created successfully",
   MODULES_RETRIEVED = "Modules retrieved successfully",
@@ -38,10 +39,12 @@ export enum SuccessMessages {
 }
 
 export enum ErrorMessages {
+  INVALID_USERID = "Invalid user ID format",
   UNAUTHORIZED = "You cannot perform this action",
   INTERNAL_SERVER_ERROR = "Internal server error",
   VALIDATION_FAILED = "Validation failed",
   USER_ALREADY_EXISTS = "User already exists",
+  INVALID_CREDENTIALS = "Invalid email or password",
   USER_CREATION_FAILED = "User creation failed",
   MODULE_CREATION_FAILED = "Module creation failed",
   MODULE_NOT_FOUND = "Module not found",

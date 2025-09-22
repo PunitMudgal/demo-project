@@ -6,25 +6,25 @@ const userSchema = new mongoose.Schema(
     first_name: {
       type: String,
       required: true,
-      min: 3,
-      max: 20,
+      minLength: 3,
+      maxLength: 20,
     },
     last_name: {
       type: String,
-      min: 3,
-      max: 20,
+      default: "",
+      maxLength: 20,
     },
     email: {
       type: String,
       required: true,
-      min: 5,
-      max: 40,
+      minLength: 5,
+      maxLength: 40,
     },
     password: {
       type: String,
       required: true,
-      min: 3,
-      max: 60,
+      minLength: 3,
+      maxLength: 60,
     },
     profile_photo: {
       type: String,
@@ -33,11 +33,11 @@ const userSchema = new mongoose.Schema(
     about: {
       type: String,
       required: true,
-      min: 10,
-      max: 500,
+      minLength: 10,
+      maxLength: 500,
     },
     address: {
-      street_name: { type: String, max: 100 },
+      street_name: { type: String, maxLength: 100 },
       pincode: { type: Number },
       state: { type: String },
       country: { type: String },
@@ -57,6 +57,7 @@ const userSchema = new mongoose.Schema(
     },
     education_qualification: {
       type: String,
+      default: "",
     },
   },
   { timestamps: true }

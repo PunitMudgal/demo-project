@@ -76,7 +76,7 @@ const deleteAllUsers = async (req: Request, res: Response) => {
       message: ErrorMessages.UNAUTHORIZED,
     });
   try {
-    await User.deleteMany({ isAdmin: { $ne: true } });
+    await User.deleteMany({ is_admin: { $ne: true } });
     res.status(200).json({
       status: "success",
       message: SuccessMessages.USER_DELETED,

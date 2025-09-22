@@ -6,16 +6,19 @@ import userRouter from "./router/user.js";
 import adminRouter from "./router/admin.js";
 import authMiddleware from "./middleware/auth.js";
 // import adminMiddleware from "./middleware/admin.js";
-
-import swaggerJSDoc from "swagger-jsdoc";
+import { setupSwagger } from "./lib/swagger.js";
+import adminMiddleware from "./middleware/admin.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
-swaggerJSDoc(app); //swagger
 
 // middlewares
 app.use(express.json());
+app.use(cors());
+
+setupSwagger(app);
 
 app.get("/", authMiddleware, (req: Request, res: Response) => {
   res // for testing purpose only
@@ -26,7 +29,7 @@ app.get("/", authMiddleware, (req: Request, res: Response) => {
 // routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", authMiddleware, userRouter);
-app.use("/api/admin", authMiddleware, adminRouter);
+app.use("/api/admin", adminMiddleware, authMiddleware, adminRouter);
 
 // connect to db & server
 const port = process.env.PORT || 4040;
