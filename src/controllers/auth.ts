@@ -12,7 +12,9 @@ import generateToken from "../lib/generateToken.js";
 import { SuccessMessages, ErrorMessages } from "../common/messages.js";
 import Token from "../models/Token.js";
 import sendEmail from "../lib/sendEmail.js";
+import { StatusCodes } from "http-status-codes";
 
+// register user
 const registerUser = async (req: Request, res: Response) => {
   const parsedData = registerSchema.parse(req.body);
   const { email, password } = parsedData;
@@ -21,7 +23,7 @@ const registerUser = async (req: Request, res: Response) => {
     // check if the user already exists
     const isAvailable = await User.findOne({ email });
     if (isAvailable)
-      return res.status(409).json({
+      return res.status(StatusCodes.CONFLICT).json({
         status: "error",
         message: ErrorMessages.USER_ALREADY_EXISTS,
       });
@@ -41,7 +43,7 @@ const registerUser = async (req: Request, res: Response) => {
 
       const userResponse = { ...newUser.toObject(), password: undefined };
 
-      res.status(201).json({
+      res.status(StatusCodes.OK).json({
         status: "success",
         message: SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
         data: {
@@ -52,7 +54,7 @@ const registerUser = async (req: Request, res: Response) => {
     }
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: "error",
       message: ErrorMessages.INTERNAL_SERVER_ERROR,
       error,
@@ -68,7 +70,7 @@ const loginUser = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         status: "error",
         message: ErrorMessages.USER_NOT_FOUND,
       });
@@ -76,16 +78,16 @@ const loginUser = async (req: Request, res: Response) => {
 
     const comparePassword = await bcrypt.compare(password, user.password);
     if (!comparePassword)
-      return res.status(401).json({
+      return res.status(StatusCodes.UNAUTHORIZED).json({
         status: "error",
-        message: ErrorMessages.USER_NOT_FOUND,
+        message: ErrorMessages.INVALID_CREDENTIALS,
       });
 
     const token = generateToken(user._id, user.is_admin);
 
     const userWithoutPassword = { ...user.toObject(), password: undefined };
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       status: "success",
       message: SuccessMessages.USER_PROFILE_RETRIEVED,
       data: {
@@ -95,7 +97,7 @@ const loginUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: "error",
       message: ErrorMessages.INTERNAL_SERVER_ERROR,
       error,
@@ -110,40 +112,36 @@ const requestPasswordReset = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         status: "error",
         message: ErrorMessages.USER_NOT_FOUND,
       });
     }
     await Token.deleteOne({ userId: user._id });
 
-    // Create new token
     const resetToken = crypto.randomBytes(32).toString("hex");
     await new Token({
       userId: user._id,
       token: resetToken,
     }).save();
 
-    // In a real app, you would email this link
     const resetLink = `http://localhost:${process.env.PORT}/api/auth/reset-password/${resetToken}`;
     console.log("Password Reset Link:", resetLink);
 
-    // Email content
     const subject = "Password Reset Request";
     const html = `<p>Hi ${user.first_name || "User"},</p>
                   <p>Your reset password link is here, Please click the link below to set a new password:</p>
                   <a href="${resetLink}">Reset Password</a>
                `;
 
-    // Send the email
     await sendEmail(user.email, subject, html);
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       status: "success",
       message: SuccessMessages.PASSWORD_RESET_LINK_SENT,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: "error",
       message: ErrorMessages.INTERNAL_SERVER_ERROR,
       error,
@@ -151,7 +149,7 @@ const requestPasswordReset = async (req: Request, res: Response) => {
   }
 };
 
-// New controller for resetting the password
+// for resetting the password
 const resetPassword = async (req: Request, res: Response) => {
   try {
     const { password } = resetPasswordSchema.parse(req.body);
@@ -159,7 +157,7 @@ const resetPassword = async (req: Request, res: Response) => {
 
     const resetToken = await Token.findOne({ token });
     if (!resetToken) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         status: "error",
         message: ErrorMessages.INVALID_CREDENTIALS,
       });
@@ -175,12 +173,12 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await Token.deleteOne({ _id: resetToken._id });
 
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       status: "success",
       message: SuccessMessages.PASSWORD_RESET,
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: "error",
       message: ErrorMessages.INTERNAL_SERVER_ERROR,
       error,

@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 5,
       maxLength: 40,
+      unique: true,
     },
     password: {
       type: String,
@@ -33,10 +34,11 @@ const userSchema = new mongoose.Schema(
     about: {
       type: String,
       required: true,
-      minLength: 10,
       maxLength: 500,
+      default: "",
     },
     address: {
+      // todo
       street_name: { type: String, maxLength: 100 },
       pincode: { type: Number },
       state: { type: String },

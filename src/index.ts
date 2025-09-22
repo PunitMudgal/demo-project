@@ -10,6 +10,7 @@ import { setupSwagger } from "./lib/swagger.js";
 import adminMiddleware from "./middleware/admin.js";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { StatusCodes } from "http-status-codes";
 
 dotenv.config();
 
@@ -24,8 +25,14 @@ setupSwagger(app);
 
 app.get("/", authMiddleware, (req: Request, res: Response) => {
   res // for testing purpose only
-    .status(200)
-    .json({ message: "All okay", userId: req.userId, isAdmin: req.isAdmin });
+    .status(StatusCodes.OK)
+    .json({
+      status: "success",
+      status_code: StatusCodes.OK,
+      message: "All okay",
+      userId: req.userId,
+      isAdmin: req.isAdmin,
+    });
 });
 
 // routes

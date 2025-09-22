@@ -22,7 +22,7 @@ const router = express.Router();
  * schema:
  * $ref: '#/components/schemas/UserRegister'
  * responses:
- * 201:
+ * 200:
  * description: User registered successfully
  * 500:
  * description: Server error
