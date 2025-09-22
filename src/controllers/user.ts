@@ -63,7 +63,10 @@ const updateUser = async (req: Request, res: Response) => {
       });
     }
 
-    const validatedData = validationResult.data;
+    const validatedData = {
+      ...validationResult.data,
+      profile_photo: req.file ? req.file.path : undefined,
+    };
 
     const updatedUser = await User.findByIdAndUpdate(
       id,

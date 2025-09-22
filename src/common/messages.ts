@@ -41,6 +41,10 @@ export enum SuccessMessages {
 export enum ErrorMessages {
   INVALID_USERID = "Invalid user ID format",
   UNAUTHORIZED = "You cannot perform this action",
+  ADMIN_AUTH_FAILED = "Admin authentication failed, only admins can access this information",
+  AUTHENTICATION_FAILED = "Authentication failed",
+  TOKEN_NOT_FOUND = "Authentication failed, Token not found",
+  SEED_ERROR = "Error while seeding the databse",
   INTERNAL_SERVER_ERROR = "Internal server error",
   VALIDATION_FAILED = "Validation failed",
   USER_ALREADY_EXISTS = "User already exists",

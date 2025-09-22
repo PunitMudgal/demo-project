@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import type { ObjectId } from "mongoose";
+import { ErrorMessages } from "../common/messages.js";
 
 interface CustomJwtPayload extends JwtPayload {
   userId: ObjectId;
@@ -17,21 +18,30 @@ const authMiddleware = async (
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       return res
         .status(401)
-        .json({ message: "Authentication failed, Token not found!" });
+        .json({
+          status: "error",
+          message: ErrorMessages.TOKEN_NOT_FOUND,
+          error: authHeader,
+        });
     }
     const token = authHeader.split(" ")[1];
 
     if (!token)
       return res
         .status(401)
-        .json({ message: "Authentication faile, token not found" });
+        .json({ status: "error", message: ErrorMessages.TOKEN_NOT_FOUND });
 
     const decode = jwt.verify(
       token,
       process.env.JWT_SECRET!
     ) as CustomJwtPayload;
     if (!decode)
-      return res.status(401).json({ message: "Authentication failed: " });
+      return res
+        .status(401)
+        .json({
+          status: "error",
+          message: ErrorMessages.AUTHENTICATION_FAILED,
+        });
     // console.log("decoded in middleware: ", decode);
     (req.userId = decode.userId), (req.isAdmin = decode.isAdmin), next();
   } catch (error) {

@@ -33,6 +33,7 @@ const registerUser = async (req: Request, res: Response) => {
     const newUser = await User.create({
       ...parsedData,
       password: hashedPassword,
+      profile_photo: req.file ? req.file.path : "",
     });
 
     if (newUser) {

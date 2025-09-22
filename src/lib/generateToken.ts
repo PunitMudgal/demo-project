@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRES_IN } from "../common/index.js";
 
 const generateToken = (userId: any, isAdmin: Boolean) => {
-  if (!process.env.JWT_SECRET) {
+  const secret = process.env.JWT_SECRET;
+  const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
+
+  if (!secret) {
     throw new Error("JWT_SECRET is not defined in environment variables");
   }
 
-  const token = jwt.sign({ userId, isAdmin }, process.env.JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN || "7d",
-  });
+  const token = jwt.sign({ userId, isAdmin }, secret, { expiresIn });
+
   return token;
 };
+
 export default generateToken;

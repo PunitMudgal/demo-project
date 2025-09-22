@@ -6,6 +6,7 @@ import {
   resetPassword,
 } from "../controllers/auth.js";
 
+import upload from "../lib/multer.js";
 const router = express.Router();
 
 /**
@@ -26,7 +27,7 @@ const router = express.Router();
  * 500:
  * description: Server error
  */
-router.post("/register", registerUser);
+router.post("/register", upload.single("profile_photo"), registerUser);
 
 /**
  * @swagger
