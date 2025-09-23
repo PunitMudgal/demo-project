@@ -1,0 +1,45 @@
+# API Documentation with Swagger
+
+This project now includes comprehensive API documentation using Swagger/OpenAPI 3.0. The documentation provides detailed information about all available endpoints, request/response schemas, authentication requirements, and example requests.
+
+## Accessing the Documentation
+
+Once your server is running, you can access the API documentation at:
+
+- **Swagger UI**: `http://localhost:4000/api-docs`
+- **JSON Schema**: `http://localhost:4000/api-docs.json`
+
+## Features
+
+### 🔍 Interactive Documentation
+
+- **Try it out**: Test API endpoints directly from the documentation
+- **Schema validation**: See required fields and data types
+- **Response examples**: View sample responses for each endpoint
+- **Authentication**: Built-in JWT authentication support
+
+### 📚 Comprehensive Coverage
+
+- **Authentication endpoints**: Register, login, password reset
+- **User management**: Profile operations, updates, deletion
+- **Admin operations**: User management for administrators
+- **Error handling**: Detailed error response documentation
+
+### 🔐 Security
+
+- **JWT Authentication**: Bearer token authentication scheme
+- **Permission levels**: User and admin access documentation
+- **Security requirements**: Clear indication of protected endpoints
+
+## API Overview
+
+### Authentication Endpoints (`/api/auth`)
+
+| Method | Endpoint                  | Description               | Auth Required |
+| ------ | ------------------------- | ------------------------- | ------------- |
+| POST   | `/register`               | Register a new user       | ❌            |
+| POST   | `/login`                  | User login                | ❌            |
+| POST   | `/request-password-reset` | Request password reset    | ❌            |
+| POST   | `/reset-password/:token`  | Reset password with token | ❌            |
+
+### User
