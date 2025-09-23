@@ -120,12 +120,19 @@ const loginUser = async (req: Request, res: Response) => {
     const token = generateToken(user._id, user.is_admin);
 
     const userWithoutPassword = { ...user.toObject(), password: undefined };
+    const sendableData = {
+      _id: userWithoutPassword._id,
+      first_name: userWithoutPassword.first_name,
+      email: userWithoutPassword.email,
+      is_admin: userWithoutPassword.is_admin,
+    };
+    const userDetails = {};
 
     handleApiSuccess(
       req,
       res,
-      { token, user: userWithoutPassword },
-      SuccessMessages.USER_PROFILE_RETRIEVED,
+      { token, user: sendableData },
+      SuccessMessages.USER_SIGNIN_SUCCESSFUL,
       StatusCodes.OK
     );
   } catch (error) {

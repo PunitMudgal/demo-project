@@ -12,6 +12,7 @@ export enum Status {
 
 export enum SuccessMessages {
   USER_REGISTERED_SUCCESSFULLY = "User registered successfully",
+  USER_SIGNIN_SUCCESSFUL = "User signin successful",
   PASSWORD_RESET_LINK_SENT = "Password reset link has been sent to the email",
   PASSWORD_RESET = "Password has been successfully reset",
   USER_CREATED = "User created successfully",
