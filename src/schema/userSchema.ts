@@ -79,7 +79,7 @@ const registerSchema = z.object({
     .optional(),
   is_admin: z.boolean().default(false),
   gender: z.enum(["male", "female"]),
-  date_of_birth: z.string().transform((str) => new Date(str)), // Handles string dates
+  date_of_birth: z.string().transform((str) => new Date(str)),
   education_qualification: z.string().optional().default(""),
   profile_photo: z.string().optional(),
 });

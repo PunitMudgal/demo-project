@@ -17,7 +17,7 @@ import { handleApiSuccess, handleApiError } from "../common/returnResponse.js";
 
 // register user
 const registerUser = async (req: Request, res: Response) => {
-  const parsedData = registerSchema.parse(req.body);
+  const parsedData = registerSchema.safeParse(req.body);
   const { email, password } = parsedData;
 
   try {
@@ -70,7 +70,7 @@ const registerUser = async (req: Request, res: Response) => {
 // login user
 const loginUser = async (req: Request, res: Response) => {
   try {
-    const parsedData = loginSchema.parse(req.body);
+    const parsedData = loginSchema.safeParse(req.body);
     const { email, password } = parsedData;
     const user = await User.findOne({ email });
 
@@ -120,7 +120,7 @@ const loginUser = async (req: Request, res: Response) => {
 // reset password
 const requestPasswordReset = async (req: Request, res: Response) => {
   try {
-    const { email } = requestPasswordResetSchema.parse(req.body);
+    const { email } = requestPasswordResetSchema.safeParse(req.body);
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -172,7 +172,7 @@ const requestPasswordReset = async (req: Request, res: Response) => {
 // for resetting the password
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { password } = resetPasswordSchema.parse(req.body);
+    const { password } = resetPasswordSchema.safeParse(req.body);
     const { token } = req.params;
 
     const resetToken = await Token.findOne({ token });
