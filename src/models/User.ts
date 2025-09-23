@@ -42,11 +42,10 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     address: {
-      // todo
-      street_name: { type: String, maxLength: 100 },
-      pincode: { type: Number },
-      state: { type: String },
-      country: { type: String },
+      street_name: { type: String, maxLength: 100, default: "" },
+      pincode: { type: Number, default: null },
+      state: { type: String, default: "" },
+      country: { type: String, default: "" },
     },
     is_admin: {
       type: Boolean,

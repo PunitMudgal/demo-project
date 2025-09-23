@@ -64,10 +64,19 @@ import { z } from "zod";
  */
 
 const registerSchema = z.object({
-  first_name: z.string().min(3).max(20),
-  last_name: z.string().max(20).optional(),
-  email: z.string().email(),
-  password: z.string().min(3).max(60),
+  first_name: z
+    .string()
+    .min(3, { message: "First name must be atleast 3 characters long" })
+    .max(20, { message: "first name cannot exceed 20 characters" }),
+  last_name: z
+    .string()
+    .max(20, { message: "last name cannot exceed 20 characters" })
+    .optional(),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(3, { message: "Password must be at least 3 characters long" })
+    .max(60, { message: "Password cannot exceed 60 characters" }),
   about: z.string().max(500),
   address: z
     .object({
@@ -85,15 +94,25 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email({ message: "Invalid email addreess" }),
+  password: z
+    .string()
+    .min(3, { message: "Password must be at least 3 characters long" })
+    .max(60, { message: "Password cannot exceed 60 characters long" }),
 });
 
 // update user schema
 const updateUserSchema = z
   .object({
-    first_name: z.string().min(3).max(40).optional(),
-    last_name: z.string().max(40).optional(),
+    first_name: z
+      .string()
+      .min(3, { message: "First name must be atleast 3 characters long" })
+      .max(40, { message: "First name must be cannot exceed 40 characters" })
+      .optional(),
+    last_name: z
+      .string()
+      .max(40, { message: "last name cannot exceed 20 characters" })
+      .optional(),
     about: z.string().max(500).optional(),
     address: z
       .object({

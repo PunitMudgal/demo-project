@@ -18,7 +18,18 @@ import { handleApiSuccess, handleApiError } from "../common/returnResponse.js";
 // register user
 const registerUser = async (req: Request, res: Response) => {
   const parsedData = registerSchema.safeParse(req.body);
-  const { email, password } = parsedData;
+
+  if (!parsedData.success) {
+    return handleApiError(
+      req,
+      res,
+      parsedData.error,
+      ErrorMessages.VALIDATION_FAILED,
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  const { email, password } = parsedData.data;
 
   try {
     // check if the user already exists
@@ -37,7 +48,7 @@ const registerUser = async (req: Request, res: Response) => {
 
     //create the user
     const newUser = await User.create({
-      ...parsedData,
+      ...parsedData.data,
       password: hashedPassword,
       profile_photo: req.file ? req.file.path : "",
     });
@@ -71,7 +82,19 @@ const registerUser = async (req: Request, res: Response) => {
 const loginUser = async (req: Request, res: Response) => {
   try {
     const parsedData = loginSchema.safeParse(req.body);
-    const { email, password } = parsedData;
+
+    if (!parsedData.success) {
+      return handleApiError(
+        req,
+        res,
+        parsedData.error,
+        ErrorMessages.VALIDATION_FAILED,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    const { email, password } = parsedData.data;
+    console.log("email -> password ->", email, password);
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -120,7 +143,19 @@ const loginUser = async (req: Request, res: Response) => {
 // reset password
 const requestPasswordReset = async (req: Request, res: Response) => {
   try {
-    const { email } = requestPasswordResetSchema.safeParse(req.body);
+    const parsedData = requestPasswordResetSchema.safeParse(req.body);
+
+    if (!parsedData.success) {
+      return handleApiError(
+        req,
+        res,
+        parsedData.error,
+        ErrorMessages.VALIDATION_FAILED,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    const { email } = parsedData.data;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -172,7 +207,19 @@ const requestPasswordReset = async (req: Request, res: Response) => {
 // for resetting the password
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { password } = resetPasswordSchema.safeParse(req.body);
+    const parsedData = resetPasswordSchema.safeParse(req.body);
+
+    if (!parsedData.success) {
+      return handleApiError(
+        req,
+        res,
+        parsedData.error,
+        ErrorMessages.VALIDATION_FAILED,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    const { password } = parsedData.data;
     const { token } = req.params;
 
     const resetToken = await Token.findOne({ token });
