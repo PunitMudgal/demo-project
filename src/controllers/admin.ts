@@ -69,7 +69,16 @@ const getAllUsers = async (req: Request, res: Response) => {
       StatusCodes.UNAUTHORIZED
     );
   try {
-    const allUsers = await User.find({}).select("-password").lean();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const allUsers = await User.find({})
+      .select("-password")
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalUsers = await User.countDocuments({});
     if (!allUsers)
       return handleApiError(
         req,
@@ -82,7 +91,7 @@ const getAllUsers = async (req: Request, res: Response) => {
     handleApiSuccess(
       req,
       res,
-      allUsers,
+      { users: allUsers, totalUsers },
       SuccessMessages.USERS_RETRIEVED,
       StatusCodes.OK
     );

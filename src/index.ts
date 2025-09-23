@@ -38,7 +38,7 @@ app.get("/", authMiddleware, (req: Request, res: Response) => {
 // routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", authMiddleware, userRouter);
-app.use("/api/admin", adminMiddleware, authMiddleware, adminRouter);
+app.use("/api/admin", adminMiddleware, adminRouter);
 
 // connect to db & server
 const port = process.env.PORT || 4040;

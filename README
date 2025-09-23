@@ -37,9 +37,9 @@ Once your server is running, you can access the API documentation at:
 
 | Method | Endpoint                  | Description               | Auth Required |
 | ------ | ------------------------- | ------------------------- | ------------- |
-| POST   | `/register`               | Register a new user       | ❌            |
-| POST   | `/login`                  | User login                | ❌            |
-| POST   | `/request-password-reset` | Request password reset    | ❌            |
-| POST   | `/reset-password/:token`  | Reset password with token | ❌            |
+| POST   | `/register`               | Register a new user       | no            |
+| POST   | `/login`                  | User login                | no            |
+| POST   | `/request-password-reset` | Request password reset    | yes           |
+| POST   | `/reset-password/:token`  | Reset password with token | yes           |
 
 ### User
