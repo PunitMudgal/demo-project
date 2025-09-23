@@ -13,6 +13,7 @@ import { SuccessMessages, ErrorMessages } from "../common/messages.js";
 import Token from "../models/Token.js";
 import sendEmail from "../lib/sendEmail.js";
 import { StatusCodes } from "http-status-codes";
+import { handleApiSuccess, handleApiError } from "../common/returnResponse.js";
 
 // register user
 const registerUser = async (req: Request, res: Response) => {
@@ -23,10 +24,13 @@ const registerUser = async (req: Request, res: Response) => {
     // check if the user already exists
     const isAvailable = await User.findOne({ email });
     if (isAvailable)
-      return res.status(StatusCodes.CONFLICT).json({
-        status: "error",
-        message: ErrorMessages.USER_ALREADY_EXISTS,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_ALREADY_EXISTS,
+        StatusCodes.CONFLICT
+      );
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -43,22 +47,23 @@ const registerUser = async (req: Request, res: Response) => {
 
       const userResponse = { ...newUser.toObject(), password: undefined };
 
-      res.status(StatusCodes.OK).json({
-        status: "success",
-        message: SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
-        data: {
-          token,
-          user: userResponse,
-        },
-      });
+      handleApiSuccess(
+        req,
+        res,
+        { token, user: userResponse },
+        SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
+        StatusCodes.OK
+      );
     }
   } catch (error) {
     console.error("Registration error:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
@@ -70,38 +75,45 @@ const loginUser = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        message: ErrorMessages.USER_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_NOT_FOUND,
+        StatusCodes.NOT_FOUND
+      );
     }
 
     const comparePassword = await bcrypt.compare(password, user.password);
     if (!comparePassword)
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        message: ErrorMessages.INVALID_CREDENTIALS,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.INVALID_CREDENTIALS,
+        StatusCodes.UNAUTHORIZED
+      );
 
     const token = generateToken(user._id, user.is_admin);
 
     const userWithoutPassword = { ...user.toObject(), password: undefined };
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      message: SuccessMessages.USER_PROFILE_RETRIEVED,
-      data: {
-        token,
-        user: userWithoutPassword,
-      },
-    });
+    handleApiSuccess(
+      req,
+      res,
+      { token, user: userWithoutPassword },
+      SuccessMessages.USER_PROFILE_RETRIEVED,
+      StatusCodes.OK
+    );
   } catch (error) {
     console.error("Login error:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
@@ -112,10 +124,13 @@ const requestPasswordReset = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        message: ErrorMessages.USER_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_NOT_FOUND,
+        StatusCodes.NOT_FOUND
+      );
     }
     await Token.deleteOne({ userId: user._id });
 
@@ -136,16 +151,21 @@ const requestPasswordReset = async (req: Request, res: Response) => {
 
     await sendEmail(user.email, subject, html);
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      message: SuccessMessages.PASSWORD_RESET_LINK_SENT,
-    });
+    handleApiSuccess(
+      req,
+      res,
+      null,
+      SuccessMessages.PASSWORD_RESET_LINK_SENT,
+      StatusCodes.OK
+    );
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
@@ -157,10 +177,13 @@ const resetPassword = async (req: Request, res: Response) => {
 
     const resetToken = await Token.findOne({ token });
     if (!resetToken) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: "error",
-        message: ErrorMessages.INVALID_CREDENTIALS,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.INVALID_CREDENTIALS,
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -173,16 +196,21 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await Token.deleteOne({ _id: resetToken._id });
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      message: SuccessMessages.PASSWORD_RESET,
-    });
+    handleApiSuccess(
+      req,
+      res,
+      null,
+      SuccessMessages.PASSWORD_RESET,
+      StatusCodes.OK
+    );
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 

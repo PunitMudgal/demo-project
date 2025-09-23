@@ -4,39 +4,50 @@ import { ErrorMessages, Status, SuccessMessages } from "../common/messages.js";
 import mongoose from "mongoose";
 import { updateUserSchema } from "../schema/userSchema.js";
 import { StatusCodes } from "http-status-codes";
+import {
+  handleApiSuccess,
+  handleApiError,
+  handleApiValidation,
+} from "../common/returnResponse.js";
 
 const getUser = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.ID_REQUIRED,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.ID_REQUIRED,
+        StatusCodes.NOT_FOUND
+      );
     }
     const user = await User.findById(userId).select("-password");
     if (!user)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.USER_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_NOT_FOUND,
+        StatusCodes.NOT_FOUND
+      );
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      status_code: StatusCodes.OK,
-      message: SuccessMessages.USER_PROFILE_RETRIEVED,
-      data: user,
-    });
+    handleApiSuccess(
+      req,
+      res,
+      user,
+      SuccessMessages.USER_PROFILE_RETRIEVED,
+      StatusCodes.OK
+    );
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      status_code: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
@@ -46,29 +57,34 @@ const updateUser = async (req: Request, res: Response) => {
     const { userId, isAdmin: isUserAdmin } = req;
 
     if (!userId)
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.ID_REQUIRED,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.ID_REQUIRED,
+        StatusCodes.NOT_FOUND
+      );
 
     if (userId.toString() !== id && !isUserAdmin) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.PERMISSION_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.PERMISSION_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     const validationResult = updateUserSchema.safeParse(req.body);
 
     if (!validationResult.success) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: "error",
-        status_code: StatusCodes.BAD_REQUEST,
-        message: ErrorMessages.VALIDATION_FAILED,
-        errors: validationResult.error,
-      });
+      return handleApiValidation(
+        req,
+        res,
+        validationResult.error,
+        ErrorMessages.VALIDATION_FAILED,
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     const validatedData = {
@@ -89,27 +105,32 @@ const updateUser = async (req: Request, res: Response) => {
     );
 
     if (!updatedUser) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.USER_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_NOT_FOUND,
+        StatusCodes.NOT_FOUND
+      );
     }
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      status_code: StatusCodes.OK,
-      message: SuccessMessages.USER_UPDATED,
-      data: updatedUser,
-    });
+    handleApiSuccess(
+      req,
+      res,
+      updatedUser,
+      SuccessMessages.USER_UPDATED,
+      StatusCodes.OK
+    );
   } catch (error) {
     console.error("Update user error:", error);
 
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      status_code: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
-    });
+    handleApiError(
+      req,
+      res,
+      null,
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
@@ -118,51 +139,62 @@ const deleteUser = async (req: Request, res: Response) => {
   const { userId, isAdmin } = req;
 
   if (!id || !userId)
-    return res.status(StatusCodes.NOT_FOUND).json({
-      status: "error",
-      status_code: StatusCodes.NOT_FOUND,
-      message: ErrorMessages.ID_REQUIRED,
-    });
+    return handleApiError(
+      req,
+      res,
+      null,
+      ErrorMessages.ID_REQUIRED,
+      StatusCodes.NOT_FOUND
+    );
 
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: "error",
-        status_code: StatusCodes.BAD_REQUEST,
-        message: ErrorMessages.INVALID_USERID,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.INVALID_USERID,
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     if (userId.toString() !== id && !isAdmin) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.PERMISSION_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.PERMISSION_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
     }
 
     const deletedUser = await User.findByIdAndDelete(id);
 
     if (!deletedUser) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.USER_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.USER_NOT_FOUND,
+        StatusCodes.NOT_FOUND
+      );
     }
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      status_code: StatusCodes.OK,
-      message: SuccessMessages.USER_DELETED,
-    });
+    handleApiSuccess(
+      req,
+      res,
+      null,
+      SuccessMessages.USER_DELETED,
+      StatusCodes.OK
+    );
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      status_code: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.INTERNAL_SERVER_ERROR,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 };
 
