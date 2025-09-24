@@ -8,7 +8,6 @@ import authMiddleware from "./middleware/auth.js";
 // import adminMiddleware from "./middleware/admin.js";
 import { setupSwagger } from "./lib/swagger.js";
 import adminMiddleware from "./middleware/admin.js";
-import cors from "cors";
 import bodyParser from "body-parser";
 import { StatusCodes } from "http-status-codes";
 
@@ -19,7 +18,6 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(bodyParser.json({ limit: "10mb" }));
-app.use(cors());
 
 setupSwagger(app);
 

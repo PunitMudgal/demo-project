@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const tokenSchema = new mongoose.Schema({
-  userId: {
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "User",
@@ -10,7 +10,7 @@ const tokenSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  createdAt: {
+  created_at: {
     type: Date,
     default: Date.now,
     expires: 3600, // means 1hr

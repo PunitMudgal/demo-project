@@ -1,5 +1,10 @@
 import express from "express";
-import { deleteAllUsers, getUser, getAllUsers } from "../controllers/admin.js";
+import {
+  deleteAllUsers,
+  getUser,
+  getAllUsers,
+  toggleUserStatus,
+} from "../controllers/admin.js";
 
 const router = express.Router();
 
@@ -339,4 +344,46 @@ router.get("/", getAllUsers);
  */
 router.delete("/delete-all", deleteAllUsers);
 
+/**
+ * @swagger
+ * /api/admin/status/{id}:
+ * patch:
+ * summary: Activate or deactivate a user (Admin only)
+ * description: Toggles the active status of a user. Only accessible by admin users.
+ * tags: [Admin]
+ * security:
+ * - bearerAuth: []
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: User ID to activate or deactivate
+ * example: "507f1f77bcf86cd799439011"
+ * responses:
+ * 200:
+ * description: User status updated successfully
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * status:
+ * type: boolean
+ * example: true
+ * status_code:
+ * type: number
+ * example: 200
+ * message:
+ * type: string
+ * example: "User activated successfully"
+ * data:
+ * $ref: '#/components/schemas/User'
+ * 404:
+ * description: User not found
+ * 500:
+ * description: Internal server error
+ */
+router.patch("/status/:id", toggleUserStatus);
 export default router;

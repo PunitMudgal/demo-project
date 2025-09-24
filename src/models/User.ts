@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    is_active: {
+      type: Boolean,
+      default: false,
+    },
     gender: {
       type: String,
       enum: ["male", "female"],
@@ -65,7 +69,9 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+  }
 );
 
 const User = mongoose.model("User", userSchema);

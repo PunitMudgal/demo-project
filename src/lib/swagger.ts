@@ -188,7 +188,7 @@ const options = {
             email: {
               type: "string",
               format: "email",
-              example: "john.doe@example.com",
+              example: "cerabrougayi-4944@yopmail.com",
             },
             password: {
               type: "string",

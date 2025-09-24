@@ -75,6 +75,20 @@ const updateUser = async (req: Request, res: Response) => {
       );
     }
 
+    if (req.body.address && typeof req.body.address === "string") {
+      try {
+        req.body.address = JSON.parse(req.body.address);
+      } catch (error) {
+        return handleApiError(
+          req,
+          res,
+          "Invalid JSON in address field",
+          ErrorMessages.VALIDATION_FAILED,
+          StatusCodes.BAD_REQUEST
+        );
+      }
+    }
+
     const validationResult = updateUserSchema.safeParse(req.body);
 
     if (!validationResult.success) {

@@ -17,6 +17,24 @@ import { handleApiSuccess, handleApiError } from "../common/returnResponse.js";
 
 // register user
 const registerUser = async (req: Request, res: Response) => {
+  if (req.body.address && typeof req.body.address === "string") {
+    try {
+      req.body.address = JSON.parse(req.body.address);
+    } catch (error) {
+      return handleApiError(
+        req,
+        res,
+        "Invalid JSON in address field",
+        ErrorMessages.VALIDATION_FAILED,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+  }
+
+  if (req.body.is_admin && typeof req.body.is_admin === "string") {
+    req.body.is_admin = req.body.is_admin === "true";
+  }
+
   const parsedData = registerSchema.safeParse(req.body);
 
   if (!parsedData.success) {
@@ -58,10 +76,11 @@ const registerUser = async (req: Request, res: Response) => {
 
       const userResponse = { ...newUser.toObject(), password: undefined };
 
+      res.header("Authorization", `Bearer ${token}`);
       handleApiSuccess(
         req,
         res,
-        { token, user: userResponse },
+        { user: userResponse },
         SuccessMessages.USER_REGISTERED_SUCCESSFULLY,
         StatusCodes.OK
       );
@@ -127,10 +146,11 @@ const loginUser = async (req: Request, res: Response) => {
       is_admin: userWithoutPassword.is_admin,
     };
 
+    res.header("Authorization", `Bearer ${token}`);
     handleApiSuccess(
       req,
       res,
-      { token, user: sendableData },
+      { user: sendableData },
       SuccessMessages.USER_SIGNIN_SUCCESSFUL,
       StatusCodes.OK
     );
@@ -177,7 +197,7 @@ const requestPasswordReset = async (req: Request, res: Response) => {
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     await new Token({
-      userId: user._id,
+      user_id: user._id,
       token: resetToken,
     }).save();
 
@@ -243,7 +263,7 @@ const resetPassword = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     await User.updateOne(
-      { _id: resetToken.userId },
+      { _id: resetToken.user_id },
       { $set: { password: hashedPassword } }
     );
 
