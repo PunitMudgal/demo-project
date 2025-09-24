@@ -140,7 +140,10 @@ const requestPasswordResetSchema = z.object({
 });
 
 const resetPasswordSchema = z.object({
-  password: z.string().min(3, { message: "Password is too short" }),
+  password: z
+    .string()
+    .min(3, { message: "Password is too short" })
+    .max(60, { message: "Password cannot exceed 60 characters" }),
 });
 
 export {
