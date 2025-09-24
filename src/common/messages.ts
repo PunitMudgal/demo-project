@@ -11,6 +11,8 @@ export enum Status {
 }
 
 export enum SuccessMessages {
+  USER_ACTIVATED = "User Activated successfully",
+  USER_DEACTIVATED = "User Deactivated successfully",
   USER_REGISTERED_SUCCESSFULLY = "User registered successfully",
   USER_SIGNIN_SUCCESSFUL = "User signin successful",
   PASSWORD_RESET_LINK_SENT = "Password reset link has been sent to the email",
@@ -40,7 +42,7 @@ export enum SuccessMessages {
 }
 
 export enum ErrorMessages {
-  INVALID_CREDENTIALS_OR_INCTIVE_ID = "Account is inactive or invalid credentials",
+  INVALID_CREDENTIALS_OR_INCTIVE_ID = "Either account is inactive or invalid credentials",
   INVALID_USERID = "Invalid user ID format",
   UNAUTHORIZED = "You cannot perform this action",
   ADMIN_AUTH_FAILED = "Admin authentication failed, only admins can access this information",

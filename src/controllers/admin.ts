@@ -25,7 +25,7 @@ const getUser = async (req: Request, res: Response) => {
         res,
         null,
         ErrorMessages.ID_REQUIRED,
-        StatusCodes.NOT_FOUND
+        StatusCodes.BAD_REQUEST
       );
 
     const user = await User.findById(id).select("-password");
@@ -155,10 +155,22 @@ const toggleUserStatus = async (req: Request, res: Response) => {
     await user.save();
 
     const ResMessage = user.is_active
-      ? "User activated successfully"
-      : "User deactivated successfully";
+      ? SuccessMessages.USER_ACTIVATED
+      : SuccessMessages.USER_DEACTIVATED;
 
-    handleApiSuccess(req, res, user, ResMessage, StatusCodes.OK);
+    const data = {};
+
+    handleApiSuccess(
+      req,
+      res,
+      {
+        first_name: user.first_name,
+        email: user.email,
+        is_active: user.is_active,
+      },
+      ResMessage,
+      StatusCodes.OK
+    );
   } catch (error) {
     handleApiError(
       req,

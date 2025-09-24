@@ -73,10 +73,10 @@ const options = {
             address: {
               type: "object",
               properties: {
-                street_name: { type: "string", maxLength: 100 },
-                pincode: { type: "number" },
-                state: { type: "string" },
-                country: { type: "string" },
+                street_name: { type: "string", maxLength: 600 },
+                pincode: { type: "number", maximum: 40 },
+                state: { type: "string", maxLength: 600 },
+                country: { type: "string", maxLength: 600 },
               },
             },
             is_admin: {
@@ -218,10 +218,10 @@ const options = {
             address: {
               type: "object",
               properties: {
-                street_name: { type: "string", maxLength: 100 },
-                pincode: { type: "number" },
-                state: { type: "string" },
-                country: { type: "string" },
+                street_name: { type: "string", maxLength: 600 },
+                pincode: { type: "number", maximum: 40 },
+                state: { type: "string", maxLength: 600 },
+                country: { type: "string", maxLength: 600 },
               },
             },
             gender: {

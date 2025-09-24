@@ -3,6 +3,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import type { ObjectId } from "mongoose";
 import { ErrorMessages } from "../common/messages.js";
 import { StatusCodes } from "http-status-codes";
+import { handleApiError } from "../common/returnResponse.js";
 
 interface CustomJwtPayload extends JwtPayload {
   userId: ObjectId;
@@ -17,41 +18,49 @@ const authMiddleware = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer")) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.TOKEN_NOT_FOUND,
-        error: authHeader,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.TOKEN_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
     }
     const token = authHeader.split(" ")[1];
 
     if (!token)
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.NOT_FOUND,
-        message: ErrorMessages.UNAUTHORIZED,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.TOKEN_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
 
     const decode = jwt.verify(
       token,
       process.env.JWT_SECRET!
     ) as CustomJwtPayload;
     if (!decode)
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.AUTHENTICATION_FAILED,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.AUTHENTICATION_FAILED,
+        StatusCodes.UNAUTHORIZED
+      );
     // console.log("decoded in middleware: ", decode);
-    (req.userId = decode.userId), (req.isAdmin = decode.isAdmin), next();
+    req.userId = decode.userId;
+    req.isAdmin = decode.isAdmin;
+    next();
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      status_code: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: ErrorMessages.INTERNAL_SERVER_ERROR,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.AUTHENTICATION_FAILED,
+      StatusCodes.UNAUTHORIZED
+    );
   }
 };
 

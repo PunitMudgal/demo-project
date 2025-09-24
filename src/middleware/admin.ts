@@ -3,6 +3,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import { ErrorMessages } from "../common/messages.js";
 import type { ObjectId } from "mongoose";
 import { StatusCodes } from "http-status-codes";
+import { handleApiError } from "../common/returnResponse.js";
 
 interface AdminPayload extends JwtPayload {
   userId: ObjectId;
@@ -16,48 +17,56 @@ const adminMiddleware = async (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader)
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.TOKEN_NOT_FOUND,
-        error: authHeader,
-      });
+    if (!authHeader || !authHeader.startsWith("Bearer "))
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.TOKEN_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
 
     const token = authHeader.split(" ")[1];
     if (!token)
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.TOKEN_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.TOKEN_NOT_FOUND,
+        StatusCodes.UNAUTHORIZED
+      );
 
     const decode = jwt.verify(token, process.env.JWT_SECRET!) as AdminPayload;
 
     if (!decode)
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.AUTHENTICATION_FAILED,
-      });
-
-    (req.userId = decode.userId), (req.isAdmin = decode.isAdmin);
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.AUTHENTICATION_FAILED,
+        StatusCodes.UNAUTHORIZED
+      );
+    req.userId = decode.userId;
+    req.isAdmin = decode.isAdmin;
 
     if (decode.isAdmin) {
       next();
     } else
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        status: "error",
-        status_code: StatusCodes.UNAUTHORIZED,
-        message: ErrorMessages.PERMISSION_NOT_FOUND,
-      });
+      return handleApiError(
+        req,
+        res,
+        null,
+        ErrorMessages.AUTHENTICATION_FAILED,
+        StatusCodes.UNAUTHORIZED
+      );
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: "error",
-      status_code: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: ErrorMessages.ADMIN_AUTH_FAILED,
+    handleApiError(
+      req,
+      res,
       error,
-    });
+      ErrorMessages.AUTHENTICATION_FAILED,
+      StatusCodes.UNAUTHORIZED
+    );
   }
 };
 
