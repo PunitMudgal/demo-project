@@ -97,12 +97,12 @@ const options = {
               type: "string",
               description: "User's education qualification",
             },
-            createdAt: {
+            created_at: {
               type: "string",
               format: "date-time",
               description: "Account creation timestamp",
             },
-            updatedAt: {
+            updated_at: {
               type: "string",
               format: "date-time",
               description: "Last update timestamp",
