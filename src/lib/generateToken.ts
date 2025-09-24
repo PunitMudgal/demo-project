@@ -7,7 +7,7 @@ const generateToken = (userId: any, isAdmin: boolean): string => {
     throw new Error("JWT_SECRET is not defined in environment variables");
   }
 
-  const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
+  const expiresIn = process.env.JWT_EXPIRES_IN || "1d";
 
   const payload = {
     userId,

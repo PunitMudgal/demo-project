@@ -20,7 +20,7 @@ const adminMiddleware = async (
       return res.status(StatusCodes.UNAUTHORIZED).json({
         status: "error",
         status_code: StatusCodes.UNAUTHORIZED,
-        messgae: ErrorMessages.TOKEN_NOT_FOUND,
+        message: ErrorMessages.TOKEN_NOT_FOUND,
         error: authHeader,
       });
 

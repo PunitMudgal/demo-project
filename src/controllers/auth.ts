@@ -68,6 +68,7 @@ const registerUser = async (req: Request, res: Response) => {
     const newUser = await User.create({
       ...parsedData.data,
       password: hashedPassword,
+      is_active: parsedData.data.is_admin,
       profile_photo: req.file ? req.file.path : "",
     });
 
@@ -113,16 +114,15 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     const { email, password } = parsedData.data;
-    console.log("email -> password ->", email, password);
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, is_active: true });
 
     if (!user) {
       return handleApiError(
         req,
         res,
         null,
-        ErrorMessages.USER_NOT_FOUND,
-        StatusCodes.NOT_FOUND
+        ErrorMessages.INVALID_CREDENTIALS_OR_INCTIVE_ID,
+        StatusCodes.UNAUTHORIZED
       );
     }
 
@@ -193,7 +193,7 @@ const requestPasswordReset = async (req: Request, res: Response) => {
         StatusCodes.NOT_FOUND
       );
     }
-    await Token.deleteOne({ userId: user._id });
+    await Token.deleteOne({ user_id: user._id });
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     await new Token({

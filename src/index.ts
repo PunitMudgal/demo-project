@@ -10,6 +10,7 @@ import { setupSwagger } from "./lib/swagger.js";
 import adminMiddleware from "./middleware/admin.js";
 import bodyParser from "body-parser";
 import { StatusCodes } from "http-status-codes";
+// import cors from "cors";
 
 dotenv.config();
 
@@ -17,6 +18,10 @@ const app = express();
 
 // middlewares
 app.use(express.json());
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || "http://localhost:3000",
+//   credentials: true
+// }));
 app.use(bodyParser.json({ limit: "10mb" }));
 
 setupSwagger(app);

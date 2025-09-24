@@ -40,6 +40,7 @@ export enum SuccessMessages {
 }
 
 export enum ErrorMessages {
+  INVALID_CREDENTIALS_OR_INCTIVE_ID = "Account is inactive or invalid credentials",
   INVALID_USERID = "Invalid user ID format",
   UNAUTHORIZED = "You cannot perform this action",
   ADMIN_AUTH_FAILED = "Admin authentication failed, only admins can access this information",
