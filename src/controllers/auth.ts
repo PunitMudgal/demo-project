@@ -126,7 +126,6 @@ const loginUser = async (req: Request, res: Response) => {
       email: userWithoutPassword.email,
       is_admin: userWithoutPassword.is_admin,
     };
-    const userDetails = {};
 
     handleApiSuccess(
       req,

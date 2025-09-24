@@ -7,6 +7,14 @@ export const users = [
     about: "I am the cricketer administrator.",
     gender: "male",
     date_of_birth: "1990-01-01",
+    address: {
+      street_name: "",
+      pincode: null,
+      state: "",
+      country: "",
+    },
+    profile_photo: "",
+    education_qualification: "Bachelor of Computer Application",
     is_admin: true,
   },
   {
@@ -17,6 +25,14 @@ export const users = [
     about: "this is about me section of virat kohli data",
     gender: "male",
     date_of_birth: "1995-05-15",
+    address: {
+      street_name: "",
+      pincode: null,
+      state: "",
+      country: "",
+    },
+    profile_photo: "",
+    education_qualification: "Bachelor of Computer Application",
     is_admin: false,
   },
   {
@@ -27,6 +43,14 @@ export const users = [
     about: "this is about me section",
     gender: "male",
     date_of_birth: "1998-11-22",
+    address: {
+      street_name: "",
+      pincode: null,
+      state: "",
+      country: "",
+    },
+    profile_photo: "",
+    education_qualification: "Bachelor of Computer Application",
     is_admin: false,
   },
 ];
